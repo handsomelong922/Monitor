@@ -36,6 +36,10 @@ export const monitors = sqliteTable("monitors", {
   status: text("status").default("pending"),
   response_time: int("response_time").default(0),
   last_checked: text("last_checked"),
+  // 新增：监控时间窗口配置
+  active_timezone: text("active_timezone").default("Asia/Shanghai"),
+  active_windows: text("active_windows"), // JSON数组：[{"start":"09:00","end":"18:00"}]
+  active_days: text("active_days"), // JSON数组：[1,2,3,4,5] 或 null表示全天
   created_at: text("created_at").notNull(),
   updated_at: text("updated_at").notNull(),
 });
