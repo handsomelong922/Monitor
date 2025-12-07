@@ -209,6 +209,38 @@ const MonitorDetail = () => {
               <Text style={{ overflowWrap: "break-word" }}>
                 {monitor.body || "-"}
               </Text>
+              <Text>{t("monitor.timezone")}:</Text>
+              <Text>{monitor.active_timezone || "Asia/Shanghai"}</Text>
+              <Text>{t("monitor.activeWindows")}:</Text>
+              <Text>
+                {monitor.active_windows && monitor.active_windows.length > 0
+                  ? monitor.active_windows.map((w, i) => (
+                      <span key={i}>
+                        {w.start} - {w.end}
+                        {i < monitor.active_windows!.length - 1 && ", "}
+                      </span>
+                    ))
+                  : t("monitor.noActiveWindows")}
+              </Text>
+              <Text>{t("monitor.activeDays")}:</Text>
+              <Text>
+                {monitor.active_days && monitor.active_days.length > 0
+                  ? monitor.active_days
+                      .map((d) => {
+                        const days = [
+                          t("monitor.form.sunday"),
+                          t("monitor.form.monday"),
+                          t("monitor.form.tuesday"),
+                          t("monitor.form.wednesday"),
+                          t("monitor.form.thursday"),
+                          t("monitor.form.friday"),
+                          t("monitor.form.saturday"),
+                        ];
+                        return days[d];
+                      })
+                      .join(", ")
+                  : t("monitor.noActiveDays")}
+              </Text>
             </Grid>
           </Flex>
         </Card>

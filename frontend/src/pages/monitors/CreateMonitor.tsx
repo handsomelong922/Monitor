@@ -7,6 +7,7 @@ import {
   Text,
   TextField,
   IconButton,
+  Checkbox,
 } from "@radix-ui/themes";
 import {
   Button,
@@ -27,6 +28,7 @@ import { ArrowLeftIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { createMonitor } from "../../api/monitors";
 import StatusCodeSelect from "../../components/StatusCodeSelect";
 import { useTranslation } from "react-i18next";
+import { TimeWindow } from "../../types/monitors";
 
 const CreateMonitor = () => {
   const navigate = useNavigate();
@@ -46,6 +48,16 @@ const CreateMonitor = () => {
   const [headers, setHeaders] = useState<{ key: string; value: string }[]>([
     { key: "", value: "" },
   ]);
+  
+  // 时区配置
+  const [timezone, setTimezone] = useState("Asia/Shanghai");
+  
+  // 时间窗口配置
+  const [timeWindows, setTimeWindows] = useState<TimeWindow[]>([]);
+  
+  // 活跃天数配置
+  const [dayPreset, setDayPreset] = useState<"everyday" | "workdays" | "weekends" | "custom">("everyday");
+  const [customDays, setCustomDays] = useState<number[]>([]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -101,6 +113,54 @@ const CreateMonitor = () => {
   const handleStatusCodeChange = (value: number) => {
     setFormData((prev) => ({ ...prev, expectedStatus: value }));
   };
+  
+  // 添加时间窗口
+  const addTimeWindow = () => {
+    setTimeWindows([...timeWindows, { start: "09:00", end: "18:00" }]);
+  };
+  
+  // 删除时间窗口
+  const removeTimeWindow = (index: number) => {
+    const newWindows = [...timeWindows];
+    newWindows.splice(index, 1);
+    setTimeWindows(newWindows);
+  };
+  
+  // 更新时间窗口
+  const updateTimeWindow = (index: number, field: "start" | "end", value: string) => {
+    const newWindows = [...timeWindows];
+    newWindows[index][field] = value;
+    setTimeWindows(newWindows);
+  };
+  
+  // 处理日期预设变更
+  const handleDayPresetChange = (preset: "everyday" | "workdays" | "weekends" | "custom") => {
+    setDayPreset(preset);
+    if (preset === "everyday") {
+      setCustomDays([]);
+    } else if (preset === "workdays") {
+      setCustomDays([1, 2, 3, 4, 5]); // Monday to Friday
+    } else if (preset === "weekends") {
+      setCustomDays([0, 6]); // Sunday and Saturday
+    }
+  };
+  
+  // 切换自定义天数
+  const toggleCustomDay = (day: number) => {
+    if (customDays.includes(day)) {
+      setCustomDays(customDays.filter(d => d !== day));
+    } else {
+      setCustomDays([...customDays, day].sort());
+    }
+  };
+  
+  // 获取活跃天数数组（用于提交）
+  const getActiveDays = (): number[] | undefined => {
+    if (dayPreset === "everyday") {
+      return undefined; // 全天，不传值
+    }
+    return customDays.length > 0 ? customDays : undefined;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +169,9 @@ const CreateMonitor = () => {
     try {
       // 获取处理后的请求头数据（直接用对象）
       const headersData = headersToObject();
+      
+      // 准备活跃天数
+      const activeDays = getActiveDays();
 
       // 调用实际API，将分钟转换为秒
       const response = await createMonitor({
@@ -120,6 +183,9 @@ const CreateMonitor = () => {
         expected_status: formData.expectedStatus,
         headers: headersData, // 直接使用对象
         body: formData.body,
+        active_timezone: timezone,
+        active_windows: timeWindows.length > 0 ? timeWindows : undefined,
+        active_days: activeDays,
       });
 
       if (response.success) {
@@ -338,6 +404,146 @@ const CreateMonitor = () => {
                   />
                 </Box>
               )}
+              
+              {/* 监控调度配置 */}
+              <Box>
+                <Heading size="4" mb="2">{t("monitor.form.schedule")}</Heading>
+                <Text size="1" color="gray" mb="3">{t("monitor.form.scheduleHelp")}</Text>
+                
+                {/* 时区选择 */}
+                <Box mb="3">
+                  <Text as="label" size="2">
+                    {t("monitor.form.timezone")}
+                  </Text>
+                  <Select value={timezone} onValueChange={setTimezone}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Asia/Shanghai">Asia/Shanghai (UTC+8)</SelectItem>
+                      <SelectItem value="America/New_York">America/New_York (UTC-5)</SelectItem>
+                      <SelectItem value="America/Los_Angeles">America/Los_Angeles (UTC-8)</SelectItem>
+                      <SelectItem value="Europe/London">Europe/London (UTC+0)</SelectItem>
+                      <SelectItem value="Europe/Paris">Europe/Paris (UTC+1)</SelectItem>
+                      <SelectItem value="Asia/Tokyo">Asia/Tokyo (UTC+9)</SelectItem>
+                      <SelectItem value="Australia/Sydney">Australia/Sydney (UTC+11)</SelectItem>
+                      <SelectItem value="UTC">UTC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Text size="1" color="gray">{t("monitor.form.timezoneHelp")}</Text>
+                </Box>
+                
+                {/* 时间窗口 */}
+                <Box mb="3">
+                  <Text as="label" size="2">
+                    {t("monitor.form.activeWindows")}
+                  </Text>
+                  <Box>
+                    {timeWindows.map((window, index) => (
+                      <Flex key={index} gap="2" align="center" mb="2">
+                        <TextField.Input
+                          type="time"
+                          value={window.start}
+                          onChange={(e) => updateTimeWindow(index, "start", e.target.value)}
+                          placeholder={t("monitor.form.startTime")}
+                        />
+                        <Text>-</Text>
+                        <TextField.Input
+                          type="time"
+                          value={window.end}
+                          onChange={(e) => updateTimeWindow(index, "end", e.target.value)}
+                          placeholder={t("monitor.form.endTime")}
+                        />
+                        <IconButton
+                          variant="soft"
+                          color="red"
+                          size="1"
+                          onClick={() => removeTimeWindow(index)}
+                          type="button"
+                        >
+                          <TrashIcon />
+                        </IconButton>
+                      </Flex>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        addTimeWindow();
+                      }}
+                      type="button"
+                    >
+                      <PlusIcon />
+                      {t("monitor.form.addTimeWindow")}
+                    </Button>
+                  </Box>
+                  <Text size="1" color="gray">{t("monitor.form.activeWindowsHelp")}</Text>
+                </Box>
+                
+                {/* 活跃天数 */}
+                <Box>
+                  <Text as="label" size="2">
+                    {t("monitor.form.activeDays")}
+                  </Text>
+                  <Box mb="2">
+                    <Text size="2" mb="1">{t("monitor.form.dayPreset")}</Text>
+                    <Flex gap="2">
+                      <Button
+                        variant={dayPreset === "everyday" ? "default" : "outline"}
+                        onClick={(e) => { e.preventDefault(); handleDayPresetChange("everyday"); }}
+                        type="button"
+                      >
+                        {t("monitor.form.everyday")}
+                      </Button>
+                      <Button
+                        variant={dayPreset === "workdays" ? "default" : "outline"}
+                        onClick={(e) => { e.preventDefault(); handleDayPresetChange("workdays"); }}
+                        type="button"
+                      >
+                        {t("monitor.form.workdays")}
+                      </Button>
+                      <Button
+                        variant={dayPreset === "weekends" ? "default" : "outline"}
+                        onClick={(e) => { e.preventDefault(); handleDayPresetChange("weekends"); }}
+                        type="button"
+                      >
+                        {t("monitor.form.weekends")}
+                      </Button>
+                      <Button
+                        variant={dayPreset === "custom" ? "default" : "outline"}
+                        onClick={(e) => { e.preventDefault(); setDayPreset("custom"); }}
+                        type="button"
+                      >
+                        {t("monitor.form.custom")}
+                      </Button>
+                    </Flex>
+                  </Box>
+                  {dayPreset === "custom" && (
+                    <Flex gap="2" wrap="wrap">
+                      {[
+                        { day: 0, label: t("monitor.form.sunday") },
+                        { day: 1, label: t("monitor.form.monday") },
+                        { day: 2, label: t("monitor.form.tuesday") },
+                        { day: 3, label: t("monitor.form.wednesday") },
+                        { day: 4, label: t("monitor.form.thursday") },
+                        { day: 5, label: t("monitor.form.friday") },
+                        { day: 6, label: t("monitor.form.saturday") },
+                      ].map(({ day, label }) => (
+                        <Box key={day}>
+                          <label style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <Checkbox
+                              checked={customDays.includes(day)}
+                              onCheckedChange={() => toggleCustomDay(day)}
+                            />
+                            <Text size="2">{label}</Text>
+                          </label>
+                        </Box>
+                      ))}
+                    </Flex>
+                  )}
+                  <Text size="1" color="gray">{t("monitor.form.activeDaysHelp")}</Text>
+                </Box>
+              </Box>
             </Flex>
           </Box>
 

@@ -233,5 +233,43 @@ CREATE INDEX IF NOT EXISTS \`monitor_status_history_24h_monitor_timestamp_idx\` 
 	\`key\` text PRIMARY KEY NOT NULL,
 	\`value\` text
 );`
+  },
+  {
+    name: "0005_pink_norrin_radd.sql",
+    sql: `
+-- 检查列是否存在
+SELECT CASE 
+  WHEN EXISTS (
+    SELECT 1 FROM pragma_table_info(\`monitors\`) WHERE name = \`active_timezone\`
+  )
+  THEN 1
+  ELSE (
+    ALTER TABLE \`monitors\` ADD \`active_timezone\` text DEFAULT 'Asia/Shanghai';
+  )
+END;
+--> statement-breakpoint
+
+-- 检查列是否存在
+SELECT CASE 
+  WHEN EXISTS (
+    SELECT 1 FROM pragma_table_info(\`monitors\`) WHERE name = \`active_windows\`
+  )
+  THEN 1
+  ELSE (
+    ALTER TABLE \`monitors\` ADD \`active_windows\` text;
+  )
+END;
+--> statement-breakpoint
+
+-- 检查列是否存在
+SELECT CASE 
+  WHEN EXISTS (
+    SELECT 1 FROM pragma_table_info(\`monitors\`) WHERE name = \`active_days\`
+  )
+  THEN 1
+  ELSE (
+    ALTER TABLE \`monitors\` ADD \`active_days\` text;
+  )
+END;`
   }
 ];
