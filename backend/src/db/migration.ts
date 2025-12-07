@@ -41,19 +41,26 @@ export async function runMigrations(d1: Bindings["DB"]): Promise<void> {
           if (!result.success) {
             console.error(`迁移 ${migration.name} 中的语句执行失败: ${statement.substring(0, 50)}...`);
             allSuccess = false;
+            break;
           }
         } catch (error) {
           console.error(`迁移 ${migration.name} 中的语句执行出错: ${statement.substring(0, 50)}...`, error);
           allSuccess = false;
+          break;
         }
       }
       
       if (allSuccess) {
         console.log(`迁移 ${migration.name} 成功`);
         // 写入迁移记录
-        await d1.prepare("INSERT INTO migrations (name, timestamp) VALUES (?, ?)").bind(migration.name, new Date().toISOString()).run();
+        try {
+          await d1.prepare("INSERT INTO migrations (name, timestamp) VALUES (?, ?)").bind(migration.name, new Date().toISOString()).run();
+        } catch (error) {
+          console.error(`记录迁移 ${migration.name} 到迁移表失败:`, error);
+          // 继续执行，不中断整个迁移过程
+        }
       } else {
-        console.error(`迁移 ${migration.name} 失败`);
+        console.error(`迁移 ${migration.name} 失败，不记录到迁移表`);
       }
     }
 
