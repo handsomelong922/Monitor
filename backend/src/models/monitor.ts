@@ -1,3 +1,9 @@
+// 时间窗口类型定义
+export interface TimeWindow {
+  start: string; // HH:mm format, e.g., "09:00"
+  end: string;   // HH:mm format, e.g., "18:00"
+}
+
 // 监控类型定义
 export interface Monitor {
   id: number;
@@ -14,6 +20,10 @@ export interface Monitor {
   status: string;
   response_time: number;
   last_checked: string;
+  // 新增：监控时间窗口配置
+  active_timezone?: string; // 默认 "Asia/Shanghai"
+  active_windows?: TimeWindow[]; // 时间窗口数组
+  active_days?: number[]; // 0-6, Sunday=0, null/empty=all days
   created_at: string;
   updated_at: string;
 }

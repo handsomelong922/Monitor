@@ -1,4 +1,4 @@
-import { Monitor } from "../models";
+import { Monitor, TimeWindow } from "../models";
 
 import { db } from "../config";
 import {
@@ -7,6 +7,7 @@ import {
   monitorDailyStats,
 } from "../db/schema";
 import { eq, desc, asc, and, inArray } from "drizzle-orm";
+import { isMonitorActive } from "../utils/schedule";
 
 /**
  * 监控相关的数据库操作
@@ -28,7 +29,7 @@ export async function getMonitorsToCheck() {
     return now > lastCheckedTime + intervalMs;
   });
 
-  // 解析所有监控的 headers 字段
+  // 解析所有监控的 headers、active_windows 和 active_days 字段
   if (monitorsToCheck) {
     monitorsToCheck.forEach((monitor: Monitor) => {
       if (typeof monitor.headers === "string") {
@@ -38,9 +39,41 @@ export async function getMonitorsToCheck() {
           monitor.headers = {};
         }
       }
+      
+      // 解析 active_windows
+      if (typeof monitor.active_windows === "string") {
+        try {
+          // @ts-ignore
+          monitor.active_windows = JSON.parse(monitor.active_windows);
+        } catch (e) {
+          // @ts-ignore
+          monitor.active_windows = null;
+        }
+      }
+      
+      // 解析 active_days
+      if (typeof monitor.active_days === "string") {
+        try {
+          // @ts-ignore
+          monitor.active_days = JSON.parse(monitor.active_days);
+        } catch (e) {
+          // @ts-ignore
+          monitor.active_days = null;
+        }
+      }
     });
   }
-  return monitorsToCheck;
+  
+  // 根据时间窗口和活跃天数进行过滤
+  const activeMonitors = monitorsToCheck.filter((monitor: Monitor) => {
+    return isMonitorActive(
+      monitor.active_timezone,
+      monitor.active_windows,
+      monitor.active_days
+    );
+  });
+  
+  return activeMonitors;
 }
 
 // 获取单个监控详情
@@ -67,6 +100,29 @@ export async function getMonitorById(id: number, userId: number, userRole: strin
       monitorData.headers = {};
     }
   }
+  
+  // 解析 active_windows
+  if (monitorData && typeof monitorData.active_windows === "string") {
+    try {
+      // @ts-ignore
+      monitorData.active_windows = JSON.parse(monitorData.active_windows);
+    } catch (e) {
+      // @ts-ignore
+      monitorData.active_windows = null;
+    }
+  }
+  
+  // 解析 active_days
+  if (monitorData && typeof monitorData.active_days === "string") {
+    try {
+      // @ts-ignore
+      monitorData.active_days = JSON.parse(monitorData.active_days);
+    } catch (e) {
+      // @ts-ignore
+      monitorData.active_days = null;
+    }
+  }
+  
   return monitorData;
 }
 
@@ -78,7 +134,7 @@ export async function getAllMonitors(userId: number) {
     .where(eq(monitors.created_by, userId))
     .orderBy(desc(monitors.created_at));
 
-  // 解析所有监控的 headers 字段
+  // 解析所有监控的 headers、active_windows 和 active_days 字段
   if (result) {
     // fix: 为 monitor 参数添加 Monitor 类型
     result.forEach((monitor: Monitor) => {
@@ -89,6 +145,28 @@ export async function getAllMonitors(userId: number) {
         } catch (e) {
           // @ts-ignore
           monitor.headers = {};
+        }
+      }
+      
+      // 解析 active_windows
+      if (typeof monitor.active_windows === "string") {
+        try {
+          // @ts-ignore
+          monitor.active_windows = JSON.parse(monitor.active_windows);
+        } catch (e) {
+          // @ts-ignore
+          monitor.active_windows = null;
+        }
+      }
+      
+      // 解析 active_days
+      if (typeof monitor.active_days === "string") {
+        try {
+          // @ts-ignore
+          monitor.active_days = JSON.parse(monitor.active_days);
+        } catch (e) {
+          // @ts-ignore
+          monitor.active_days = null;
         }
       }
     });
@@ -170,7 +248,10 @@ export async function createMonitor(
   expectedStatus: number = 200,
   headers: Record<string, string> = {},
   body: string = "",
-  userId: number
+  userId: number,
+  activeTimezone?: string,
+  activeWindows?: TimeWindow[],
+  activeDays?: number[]
 ) {
   const now = new Date().toISOString();
 
@@ -190,6 +271,9 @@ export async function createMonitor(
       status: "pending",
       response_time: 0,
       last_checked: null,
+      active_timezone: activeTimezone || "Asia/Shanghai",
+      active_windows: activeWindows ? JSON.stringify(activeWindows) : null,
+      active_days: activeDays ? JSON.stringify(activeDays) : null,
       created_at: now,
       updated_at: now,
     })
@@ -206,6 +290,28 @@ export async function createMonitor(
     } catch (e) {
         // @ts-ignore
       newMonitor.headers = {};
+    }
+  }
+  
+  // 解析 active_windows
+  if (newMonitor && typeof newMonitor.active_windows === "string") {
+    try {
+      // @ts-ignore
+      newMonitor.active_windows = JSON.parse(newMonitor.active_windows);
+    } catch (e) {
+      // @ts-ignore
+      newMonitor.active_windows = null;
+    }
+  }
+  
+  // 解析 active_days
+  if (newMonitor && typeof newMonitor.active_days === "string") {
+    try {
+      // @ts-ignore
+      newMonitor.active_days = JSON.parse(newMonitor.active_days);
+    } catch (e) {
+      // @ts-ignore
+      newMonitor.active_days = null;
     }
   }
 
@@ -233,6 +339,9 @@ export async function updateMonitorConfig(
   if (updates.headers !== undefined) updateData.headers = JSON.stringify(updates.headers);
   if (updates.body !== undefined) updateData.body = updates.body;
   if (updates.active !== undefined) updateData.active = updates.active ? 1 : 0;
+  if (updates.active_timezone !== undefined) updateData.active_timezone = updates.active_timezone;
+  if (updates.active_windows !== undefined) updateData.active_windows = updates.active_windows ? JSON.stringify(updates.active_windows) : null;
+  if (updates.active_days !== undefined) updateData.active_days = updates.active_days ? JSON.stringify(updates.active_days) : null;
 
 
   // 如果没有要更新的字段，则提前返回
@@ -259,6 +368,28 @@ export async function updateMonitorConfig(
     } catch (e) {
         // @ts-ignore
       updatedMonitor.headers = {};
+    }
+  }
+  
+  // 解析 active_windows
+  if (updatedMonitor && typeof updatedMonitor.active_windows === "string") {
+    try {
+      // @ts-ignore
+      updatedMonitor.active_windows = JSON.parse(updatedMonitor.active_windows);
+    } catch (e) {
+      // @ts-ignore
+      updatedMonitor.active_windows = null;
+    }
+  }
+  
+  // 解析 active_days
+  if (updatedMonitor && typeof updatedMonitor.active_days === "string") {
+    try {
+      // @ts-ignore
+      updatedMonitor.active_days = JSON.parse(updatedMonitor.active_days);
+    } catch (e) {
+      // @ts-ignore
+      updatedMonitor.active_days = null;
     }
   }
 

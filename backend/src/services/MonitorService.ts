@@ -178,7 +178,10 @@ export async function createMonitor(data: any, userId: number) {
       data.expected_status || 200,
       data.headers || {},
       data.body || "",
-      userId
+      userId,
+      data.active_timezone,
+      data.active_windows,
+      data.active_days
     );
 
     return {
@@ -224,6 +227,12 @@ export async function updateMonitor(id: number, data: any, userId: number, userR
       updateData.response_time = data.responseTime;
     if (data.lastChecked !== undefined)
       updateData.last_checked = data.lastChecked;
+    if (data.active_timezone !== undefined) 
+      updateData.active_timezone = data.active_timezone;
+    if (data.active_windows !== undefined) 
+      updateData.active_windows = data.active_windows;
+    if (data.active_days !== undefined) 
+      updateData.active_days = data.active_days;
 
     // 执行更新
     const updatedMonitor = await repositories.updateMonitorConfig(

@@ -2,6 +2,12 @@
  * 监控相关类型定义
  */
 
+// 时间窗口类型定义
+export interface TimeWindow {
+  start: string; // HH:mm format, e.g., "09:00"
+  end: string;   // HH:mm format, e.g., "18:00"
+}
+
 export interface Monitor {
   id: number;
   name: string;
@@ -18,6 +24,10 @@ export interface Monitor {
   user_id: number;
   created_by?: number;
   active?: number;
+  // 新增：监控时间窗口配置
+  active_timezone?: string; // 默认 "Asia/Shanghai"
+  active_windows?: TimeWindow[]; // 时间窗口数组
+  active_days?: number[]; // 0-6, Sunday=0, null/empty=all days
   created_at: string;
   updated_at: string;
 }
@@ -70,6 +80,10 @@ export interface CreateMonitorRequest {
   expected_status?: number;
   interval: number;
   timeout: number;
+  // 新增：监控时间窗口配置
+  active_timezone?: string;
+  active_windows?: TimeWindow[];
+  active_days?: number[];
 }
 
 export interface UpdateMonitorRequest {
@@ -81,6 +95,10 @@ export interface UpdateMonitorRequest {
   expected_status?: number;
   interval?: number;
   timeout?: number;
+  // 新增：监控时间窗口配置
+  active_timezone?: string;
+  active_windows?: TimeWindow[];
+  active_days?: number[];
 }
 
 // 新增每日统计数据类型
