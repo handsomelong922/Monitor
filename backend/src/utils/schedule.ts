@@ -3,9 +3,11 @@ import { TimeWindow } from "../models/monitor";
 /**
  * 检查当前时间是否在监控的活跃时间窗口内
  * @param activeTimezone 监控的时区，默认 "Asia/Shanghai"
- * @param activeWindows 活跃时间窗口数组，null/undefined 表示24x7
- * @param activeDays 活跃天数数组 (0-6, Sunday=0)，null/undefined 表示每天
+ * @param activeWindows 活跃时间窗口数组，null/undefined/empty 表示全天24小时
+ * @param activeDays 活跃天数数组 (0-6, Sunday=0)，null/undefined/empty 表示每天
  * @returns true 表示当前时间在活跃窗口内
+ * 
+ * 注意：如果 activeWindows 和 activeDays 都为空，监控将24x7运行（始终活跃）
  */
 export function isMonitorActive(
   activeTimezone?: string,
@@ -13,6 +15,7 @@ export function isMonitorActive(
   activeDays?: number[] | null
 ): boolean {
   // 如果没有配置时间窗口和活跃天数，默认为24x7活跃
+  // 这确保了向后兼容性：现有监控如果没有设置这些字段，将继续正常工作
   if ((!activeWindows || activeWindows.length === 0) && (!activeDays || activeDays.length === 0)) {
     return true;
   }

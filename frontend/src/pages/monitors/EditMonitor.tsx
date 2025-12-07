@@ -134,7 +134,8 @@ const EditMonitor = () => {
           if (monitor.active_days && monitor.active_days.length > 0) {
             setCustomDays(monitor.active_days);
             // 判断预设
-            const daysStr = JSON.stringify(monitor.active_days.sort());
+            const sortedDays = [...monitor.active_days].sort();
+            const daysStr = JSON.stringify(sortedDays);
             if (daysStr === JSON.stringify([1, 2, 3, 4, 5])) {
               setDayPreset("workdays");
             } else if (daysStr === JSON.stringify([0, 6])) {
