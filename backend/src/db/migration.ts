@@ -1,6 +1,10 @@
 import { MIGRATIONS } from "./generated-migrations";
 import { Bindings } from "../models";
 
+// Constants for migration processing
+const STATEMENT_BREAKPOINT = '--> statement-breakpoint';
+const MAX_STATEMENT_PREVIEW_LENGTH = 50;
+
 
 const tableExists = async (d1: Bindings["DB"], tableName: string): Promise<boolean | undefined> => {
   const result = await d1.prepare("SELECT * FROM sqlite_master WHERE type='table' AND name=?").bind(tableName).run();
@@ -30,7 +34,7 @@ export async function runMigrations(d1: Bindings["DB"]): Promise<void> {
       
       // 分割多个SQL语句并逐个执行
       const statements = migration.sql
-        .split('--> statement-breakpoint')
+        .split(STATEMENT_BREAKPOINT)
         .map(s => s.trim())
         .filter(s => s.length > 0 && !s.startsWith('--'));
       
@@ -39,12 +43,12 @@ export async function runMigrations(d1: Bindings["DB"]): Promise<void> {
         try {
           const result = await d1.prepare(statement).run();
           if (!result.success) {
-            console.error(`迁移 ${migration.name} 中的语句执行失败: ${statement.substring(0, 50)}...`);
+            console.error(`迁移 ${migration.name} 中的语句执行失败: ${statement.substring(0, MAX_STATEMENT_PREVIEW_LENGTH)}...`);
             allSuccess = false;
             break;
           }
         } catch (error) {
-          console.error(`迁移 ${migration.name} 中的语句执行出错: ${statement.substring(0, 50)}...`, error);
+          console.error(`迁移 ${migration.name} 中的语句执行出错: ${statement.substring(0, MAX_STATEMENT_PREVIEW_LENGTH)}...`, error);
           allSuccess = false;
           break;
         }
