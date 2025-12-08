@@ -163,11 +163,6 @@ export async function createMonitor(data: any, userId: number) {
       return { success: false, message: "缺少必填字段", status: 400 };
     }
 
-    // 如果headers是对象，则转换为字符串
-    if (typeof data.headers !== "string") {
-      data.headers = JSON.stringify(data.headers);
-    }
-
     // 创建新监控
     const newMonitor = await repositories.createMonitor(
       data.name,

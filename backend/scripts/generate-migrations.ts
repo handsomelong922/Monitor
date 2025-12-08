@@ -12,26 +12,8 @@ function addIfNotExists(sql: string): string {
     // 处理 CREATE TABLE 语句
     .replace(/CREATE TABLE (`?\w+`?)/g, 'CREATE TABLE IF NOT EXISTS $1')
     // 处理 CREATE INDEX 语句
-    .replace(/CREATE (UNIQUE )?INDEX (`?\w+`?)/g, 'CREATE $1INDEX IF NOT EXISTS $2')
-    // 处理 ALTER TABLE ADD COLUMN 语句
-    .replace(
-      /ALTER TABLE (`?\w+`?) ADD (COLUMN )?(`?\w+`? \w+.*)/g,
-      (match, table, _, column) => {
-        // 提取列名（去掉类型和约束）
-        const columnName = column.match(/^`?\w+`?/)[0];
-        return `
--- 检查列是否存在
-SELECT CASE 
-  WHEN EXISTS (
-    SELECT 1 FROM pragma_table_info(${table}) WHERE name = ${columnName}
-  )
-  THEN 1
-  ELSE (
-    ALTER TABLE ${table} ADD ${column}
-  )
-END;`;
-      }
-    );
+    .replace(/CREATE (UNIQUE )?INDEX (`?\w+`?)/g, 'CREATE $1INDEX IF NOT EXISTS $2');
+    // Note: ALTER TABLE ADD COLUMN is left as-is since migration tracking prevents re-running
 }
 
 // 生成迁移文件
