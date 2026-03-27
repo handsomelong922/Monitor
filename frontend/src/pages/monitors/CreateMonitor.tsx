@@ -210,7 +210,7 @@ const CreateMonitor = () => {
 
   return (
     <Box className="sm:px-6 lg:px-[8%]">
-      <Flex justify="between" align="center">
+      <Flex justify="between" align="center" mb="4">
         <Flex align="center" gap="2">
           <Button variant="secondary" onClick={() => navigate("/monitors")}>
             <ArrowLeftIcon />
@@ -218,109 +218,120 @@ const CreateMonitor = () => {
           <Heading size="6">{t("monitor.form.title.create")}</Heading>
         </Flex>
       </Flex>
-      <Card className="my-4 pr-4">
+      <Card className="my-4 p-6">
         <form onSubmit={handleSubmit}>
-          <Box pt="2">
-            <Flex direction="column" gap="2" className="ml-4">
+          <Flex direction="column" gap="4">
               <Box>
-                <Text as="label" size="2">
+                <Text as="label" size="2" weight="medium">
                   {t("monitor.form.name")} *
                 </Text>
-                <TextField.Input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder={t("monitor.form.namePlaceholder")}
-                  required
-                />
+                <Box mt="1">
+                  <TextField.Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder={t("monitor.form.namePlaceholder")}
+                    required
+                  />
+                </Box>
               </Box>
 
               <Box>
-                <Text as="label" size="2">
+                <Text as="label" size="2" weight="medium">
                   URL *
                 </Text>
-                <TextField.Input
-                  name="url"
-                  value={formData.url}
-                  onChange={handleChange}
-                  placeholder={t("monitor.form.urlPlaceholder")}
-                  required
-                />
+                <Box mt="1">
+                  <TextField.Input
+                    name="url"
+                    value={formData.url}
+                    onChange={handleChange}
+                    placeholder={t("monitor.form.urlPlaceholder")}
+                    required
+                  />
+                </Box>
               </Box>
 
               <Box>
-                <Text as="label" size="2">
+                <Text as="label" size="2" weight="medium">
                   {t("monitor.form.method")} *
                 </Text>
-                <Select
-                  name="method"
-                  value={formData.method}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, method: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GET">GET</SelectItem>
-                    <SelectItem value="POST">POST</SelectItem>
-                    <SelectItem value="PUT">PUT</SelectItem>
-                    <SelectItem value="DELETE">DELETE</SelectItem>
-                    <SelectItem value="HEAD">HEAD</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Box mt="1">
+                  <Select
+                    name="method"
+                    value={formData.method}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, method: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                      <SelectItem value="HEAD">HEAD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Box>
               </Box>
 
               <Flex gap="4">
-                <Box>
-                  <Text as="label" size="2">
+                <Box className="flex-1">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.interval")} *
                   </Text>
-                  <TextField.Input
-                    name="interval"
-                    type="number"
-                    value={formData.interval.toString()}
-                    onChange={handleChange}
-                    min="1"
-                    required
-                  />
-                  <Text size="1" color="gray">
+                  <Box mt="1">
+                    <TextField.Input
+                      name="interval"
+                      type="number"
+                      value={formData.interval.toString()}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
+                  </Box>
+                  <Text size="1" color="gray" mt="1" as="p">
                     {t("monitor.form.intervalMin")}
                   </Text>
                 </Box>
 
-                <Box>
-                  <Text as="label" size="2">
+                <Box className="flex-1">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.timeout")} *
                   </Text>
-                  <TextField.Input
-                    name="timeout"
-                    type="number"
-                    value={formData.timeout.toString()}
-                    onChange={handleChange}
-                    min="1"
-                    required
-                  />
+                  <Box mt="1">
+                    <TextField.Input
+                      name="timeout"
+                      type="number"
+                      value={formData.timeout.toString()}
+                      onChange={handleChange}
+                      min="1"
+                      required
+                    />
+                  </Box>
                 </Box>
               </Flex>
 
               <Box>
-                <Text as="label" size="2">
+                <Text as="label" size="2" weight="medium">
                   {t("monitor.form.expectedStatus")} *
                 </Text>
-                <StatusCodeSelect
-                  value={formData.expectedStatus}
-                  onChange={handleStatusCodeChange}
-                  required
-                />
+                <Box mt="1">
+                  <StatusCodeSelect
+                    value={formData.expectedStatus}
+                    onChange={handleStatusCodeChange}
+                    required
+                  />
+                </Box>
               </Box>
 
               <Box>
-                <Text as="label" size="2">
+                <Text as="label" size="2" weight="medium">
                   {t("monitor.form.headers")}
                 </Text>
-                <Box>
+                <Box mt="1">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -386,22 +397,26 @@ const CreateMonitor = () => {
                     {t("monitor.form.addHeader")}
                   </Button>
                 </Box>
-                <Text size="1" color="gray">
+                <Text size="1" color="gray" mt="1" as="p">
                   {t("monitor.form.headersHelp")}
                 </Text>
               </Box>
 
               {showBodyField && (
                 <Box>
-                  <Text as="label" size="2">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.body")}
                   </Text>
-                  <Textarea
-                    name="body"
-                    value={formData.body}
-                    onChange={handleChange}
-                    placeholder={t("monitor.form.bodyPlaceholder")}
-                  />
+                  <Box mt="1">
+                    <Textarea
+                      name="body"
+                      value={formData.body}
+                      onChange={handleChange}
+                      placeholder={t("monitor.form.bodyPlaceholder")}
+                      rows={6}
+                      className="min-h-[120px]"
+                    />
+                  </Box>
                 </Box>
               )}
               

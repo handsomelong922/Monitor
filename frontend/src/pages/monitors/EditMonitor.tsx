@@ -538,6 +538,8 @@ const EditMonitor = () => {
                     value={formData.body}
                     onChange={handleChange}
                     placeholder={t("monitor.form.bodyPlaceholder")}
+                    rows={6}
+                    className="min-h-[120px]"
                   />
                 </Box>
               )}
