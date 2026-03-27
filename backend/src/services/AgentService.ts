@@ -111,7 +111,15 @@ export async function updateAgentService(
     }
 
     if (updateData.enabled !== undefined) {
-      agent.enabled = updateData.enabled;
+      const enabledNum = Number(updateData.enabled);
+      if (!Number.isInteger(enabledNum) || (enabledNum !== 0 && enabledNum !== 1)) {
+        return {
+          success: false,
+          message: "enabled 参数无效，只能为 0 或 1",
+          status: 400,
+        };
+      }
+      agent.enabled = enabledNum;
     }
 
     // 执行更新

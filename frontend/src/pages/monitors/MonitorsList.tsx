@@ -314,6 +314,11 @@ const MonitorsList = () => {
                             ? t("monitors.disable")
                             : t("monitors.enable")
                         }
+                        aria-label={
+                          monitor.active !== 0
+                            ? t("monitors.disable")
+                            : t("monitors.enable")
+                        }
                       />
                       <IconButton
                         variant="soft"
@@ -356,6 +361,11 @@ const MonitorsList = () => {
                       handleToggleActive(monitor.id, monitor.active ?? 1)
                     }
                     title={
+                      monitor.active !== 0
+                        ? t("monitors.disable")
+                        : t("monitors.enable")
+                    }
+                    aria-label={
                       monitor.active !== 0
                         ? t("monitors.disable")
                         : t("monitors.enable")

@@ -177,6 +177,11 @@ const AgentsList = () => {
                     ? t("agents.disable")
                     : t("agents.enable")
                 }
+                aria-label={
+                  agent.enabled !== 0
+                    ? t("agents.disable")
+                    : t("agents.enable")
+                }
               />
               <IconButton
                 variant="ghost"
@@ -275,6 +280,11 @@ const AgentsList = () => {
                       handleToggleEnabled(agent.id, agent.enabled ?? 1)
                     }
                     title={
+                      agent.enabled !== 0
+                        ? t("agents.disable")
+                        : t("agents.enable")
+                    }
+                    aria-label={
                       agent.enabled !== 0
                         ? t("agents.disable")
                         : t("agents.enable")
