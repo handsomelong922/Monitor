@@ -16,11 +16,11 @@ import { isMonitorActive } from "../utils/schedule";
 // 获取需要检查的监控列表
 export async function getMonitorsToCheck() {
   // 只获取已启用的监控 (active = 1)
-  const allmonitors = await db.select().from(monitors).where(eq(monitors.active, 1)).execute();
+  const enabledMonitors = await db.select().from(monitors).where(eq(monitors.active, 1)).execute();
 
   // 在JavaScript中进行日期计算筛选
   const now = new Date().getTime();
-  const monitorsToCheck = allmonitors.filter((monitor: Monitor) => {
+  const monitorsToCheck = enabledMonitors.filter((monitor: Monitor) => {
     if (!monitor.last_checked) return true; // 如果没有检查过，需要检查
 
     const lastCheckedTime = new Date(monitor.last_checked).getTime();
