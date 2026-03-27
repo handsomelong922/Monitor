@@ -105,6 +105,7 @@ export const agents = sqliteTable("agents", {
     .notNull()
     .references(() => users.id),
   status: text("status").default("inactive"),
+  enabled: int("enabled").notNull().default(1), // 0 = disabled, 1 = enabled
   created_at: text("created_at").notNull(),
   updated_at: text("updated_at").notNull(),
   hostname: text("hostname"),

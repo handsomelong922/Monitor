@@ -5,6 +5,7 @@ export interface Agent {
   token: string;
   created_by: number;
   status: string | null;
+  enabled: number; // 0 = disabled, 1 = enabled
   created_at: string;
   updated_at: string;
   hostname: string | null;
@@ -21,6 +22,7 @@ export interface AgentWithMetrics {
   token: string;
   created_by: number;
   status: string;
+  enabled: number; // 0 = disabled, 1 = enabled
   created_at: string;
   updated_at: string;
   hostname: string | null;

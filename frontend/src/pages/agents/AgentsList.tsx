@@ -23,6 +23,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  Switch,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -41,6 +42,7 @@ import {
   getAllAgents,
   deleteAgent,
   getLatestAgentMetrics,
+  updateAgent,
 } from "../../api/agents";
 import AgentStatusBar from "../../components/AgentStatusBar";
 import { useTranslation } from "react-i18next";
@@ -116,6 +118,17 @@ const AgentsList = () => {
     fetchAgents();
   };
 
+  // 切换客户端启用状态
+  const handleToggleEnabled = async (id: number, currentEnabled: number) => {
+    const newEnabled = currentEnabled === 1 ? 0 : 1;
+    const response = await updateAgent(id, { enabled: newEnabled });
+    if (response.success) {
+      setAgents((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, enabled: newEnabled } : a))
+      );
+    }
+  };
+
   // 打开删除确认对话框
   const handleDeleteClick = (agentId: number) => {
     setSelectedAgentId(agentId);
@@ -153,7 +166,18 @@ const AgentsList = () => {
         {agents.map((agent) => (
           <Box key={agent.id} className="relative">
             <AgentStatusBar latestMetric={agent.metrics} agent={agent} />
-            <Flex gap="2" className="absolute top-4 right-4">
+            <Flex gap="2" align="center" className="absolute top-4 right-4">
+              <Switch
+                checked={agent.enabled !== 0}
+                onCheckedChange={() =>
+                  handleToggleEnabled(agent.id, agent.enabled ?? 1)
+                }
+                title={
+                  agent.enabled !== 0
+                    ? t("agents.disable")
+                    : t("agents.enable")
+                }
+              />
               <IconButton
                 variant="ghost"
                 size="1"
@@ -244,7 +268,18 @@ const AgentsList = () => {
                 <Text>{agent.version || t("common.notFound")}</Text>
               </TableCell>
               <TableCell>
-                <Flex gap="2">
+                <Flex gap="2" align="center">
+                  <Switch
+                    checked={agent.enabled !== 0}
+                    onCheckedChange={() =>
+                      handleToggleEnabled(agent.id, agent.enabled ?? 1)
+                    }
+                    title={
+                      agent.enabled !== 0
+                        ? t("agents.disable")
+                        : t("agents.enable")
+                    }
+                  />
                   <IconButton
                     variant="soft"
                     onClick={() => navigate(`/agents/${agent.id}`)}

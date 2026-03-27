@@ -406,60 +406,67 @@ const CreateMonitor = () => {
               )}
               
               {/* 监控调度配置 */}
-              <Box>
-                <Heading size="4" mb="2">{t("monitor.form.schedule")}</Heading>
-                <Text size="1" color="gray" mb="3">{t("monitor.form.scheduleHelp")}</Text>
+              <Box className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-2">
+                <Heading size="3" mb="1">{t("monitor.form.schedule")}</Heading>
+                <Text size="1" color="gray" mb="3" as="p">{t("monitor.form.scheduleHelp")}</Text>
                 
                 {/* 时区选择 */}
-                <Box mb="3">
-                  <Text as="label" size="2">
+                <Box mb="4">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.timezone")}
                   </Text>
-                  <Select value={timezone} onValueChange={setTimezone}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Asia/Shanghai">Asia/Shanghai (UTC+8)</SelectItem>
-                      <SelectItem value="America/New_York">America/New_York (UTC-5)</SelectItem>
-                      <SelectItem value="America/Los_Angeles">America/Los_Angeles (UTC-8)</SelectItem>
-                      <SelectItem value="Europe/London">Europe/London (UTC+0)</SelectItem>
-                      <SelectItem value="Europe/Paris">Europe/Paris (UTC+1)</SelectItem>
-                      <SelectItem value="Asia/Tokyo">Asia/Tokyo (UTC+9)</SelectItem>
-                      <SelectItem value="Australia/Sydney">Australia/Sydney (UTC+11)</SelectItem>
-                      <SelectItem value="UTC">UTC</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Box mt="1">
+                    <Select value={timezone} onValueChange={setTimezone}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Asia/Shanghai">Asia/Shanghai (UTC+8)</SelectItem>
+                        <SelectItem value="America/New_York">America/New_York (UTC-5)</SelectItem>
+                        <SelectItem value="America/Los_Angeles">America/Los_Angeles (UTC-8)</SelectItem>
+                        <SelectItem value="Europe/London">Europe/London (UTC+0)</SelectItem>
+                        <SelectItem value="Europe/Paris">Europe/Paris (UTC+1)</SelectItem>
+                        <SelectItem value="Asia/Tokyo">Asia/Tokyo (UTC+9)</SelectItem>
+                        <SelectItem value="Australia/Sydney">Australia/Sydney (UTC+11)</SelectItem>
+                        <SelectItem value="UTC">UTC</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Box>
                   <Text size="1" color="gray">{t("monitor.form.timezoneHelp")}</Text>
                 </Box>
                 
                 {/* 时间窗口 */}
-                <Box mb="3">
-                  <Text as="label" size="2">
+                <Box mb="4">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.activeWindows")}
                   </Text>
-                  <Box>
+                  <Box mt="1">
                     {timeWindows.map((window, index) => (
-                      <Flex key={index} gap="2" align="center" mb="2">
-                        <TextField.Input
-                          type="time"
-                          value={window.start}
-                          onChange={(e) => updateTimeWindow(index, "start", e.target.value)}
-                          placeholder={t("monitor.form.startTime")}
-                        />
-                        <Text>-</Text>
-                        <TextField.Input
-                          type="time"
-                          value={window.end}
-                          onChange={(e) => updateTimeWindow(index, "end", e.target.value)}
-                          placeholder={t("monitor.form.endTime")}
-                        />
+                      <Flex key={index} gap="3" align="center" mb="2" className="flex-wrap sm:flex-nowrap">
+                        <Box className="flex-1 min-w-[120px]">
+                          <TextField.Input
+                            type="time"
+                            value={window.start}
+                            onChange={(e) => updateTimeWindow(index, "start", e.target.value)}
+                            placeholder={t("monitor.form.startTime")}
+                          />
+                        </Box>
+                        <Text color="gray" size="2" className="shrink-0">–</Text>
+                        <Box className="flex-1 min-w-[120px]">
+                          <TextField.Input
+                            type="time"
+                            value={window.end}
+                            onChange={(e) => updateTimeWindow(index, "end", e.target.value)}
+                            placeholder={t("monitor.form.endTime")}
+                          />
+                        </Box>
                         <IconButton
                           variant="soft"
                           color="red"
-                          size="1"
+                          size="2"
                           onClick={() => removeTimeWindow(index)}
                           type="button"
+                          className="shrink-0"
                         >
                           <TrashIcon />
                         </IconButton>
@@ -472,26 +479,27 @@ const CreateMonitor = () => {
                         addTimeWindow();
                       }}
                       type="button"
+                      className="mt-1"
                     >
                       <PlusIcon />
                       {t("monitor.form.addTimeWindow")}
                     </Button>
                   </Box>
-                  <Text size="1" color="gray">{t("monitor.form.activeWindowsHelp")}</Text>
+                  <Text size="1" color="gray" as="p" className="mt-1">{t("monitor.form.activeWindowsHelp")}</Text>
                 </Box>
                 
                 {/* 活跃天数 */}
                 <Box>
-                  <Text as="label" size="2">
+                  <Text as="label" size="2" weight="medium">
                     {t("monitor.form.activeDays")}
                   </Text>
-                  <Box mb="2">
-                    <Text size="2" mb="1">{t("monitor.form.dayPreset")}</Text>
-                    <Flex gap="2">
+                  <Box mt="1" mb="2">
+                    <Flex gap="2" wrap="wrap">
                       <Button
                         variant={dayPreset === "everyday" ? "default" : "outline"}
                         onClick={(e) => { e.preventDefault(); handleDayPresetChange("everyday"); }}
                         type="button"
+                        size="sm"
                       >
                         {t("monitor.form.everyday")}
                       </Button>
@@ -499,6 +507,7 @@ const CreateMonitor = () => {
                         variant={dayPreset === "workdays" ? "default" : "outline"}
                         onClick={(e) => { e.preventDefault(); handleDayPresetChange("workdays"); }}
                         type="button"
+                        size="sm"
                       >
                         {t("monitor.form.workdays")}
                       </Button>
@@ -506,6 +515,7 @@ const CreateMonitor = () => {
                         variant={dayPreset === "weekends" ? "default" : "outline"}
                         onClick={(e) => { e.preventDefault(); handleDayPresetChange("weekends"); }}
                         type="button"
+                        size="sm"
                       >
                         {t("monitor.form.weekends")}
                       </Button>
@@ -513,13 +523,14 @@ const CreateMonitor = () => {
                         variant={dayPreset === "custom" ? "default" : "outline"}
                         onClick={(e) => { e.preventDefault(); setDayPreset("custom"); }}
                         type="button"
+                        size="sm"
                       >
                         {t("monitor.form.custom")}
                       </Button>
                     </Flex>
                   </Box>
                   {dayPreset === "custom" && (
-                    <Flex gap="2" wrap="wrap">
+                    <Flex gap="3" wrap="wrap" mt="2">
                       {[
                         { day: 0, label: t("monitor.form.sunday") },
                         { day: 1, label: t("monitor.form.monday") },
@@ -530,7 +541,7 @@ const CreateMonitor = () => {
                         { day: 6, label: t("monitor.form.saturday") },
                       ].map(({ day, label }) => (
                         <Box key={day}>
-                          <label style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
                             <Checkbox
                               checked={customDays.includes(day)}
                               onCheckedChange={() => toggleCustomDay(day)}
@@ -541,7 +552,7 @@ const CreateMonitor = () => {
                       ))}
                     </Flex>
                   )}
-                  <Text size="1" color="gray">{t("monitor.form.activeDaysHelp")}</Text>
+                  <Text size="1" color="gray" as="p" className="mt-1">{t("monitor.form.activeDaysHelp")}</Text>
                 </Box>
               </Box>
             </Flex>

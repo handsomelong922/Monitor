@@ -139,6 +139,8 @@ const zhCN = {
     "monitors.viewDetails": "查看详情",
     "monitors.edit": "编辑监控",
     "monitors.delete": "删除监控",
+    "monitors.enable": "启用监控",
+    "monitors.disable": "禁用监控",
 
     // 监控详情
     "monitor.details": "监控详情",
@@ -273,6 +275,8 @@ const zhCN = {
     "agents.table.os": "操作系统",
     "agents.table.version": "版本",
     "agents.table.actions": "操作",
+    "agents.enable": "启用客户端",
+    "agents.disable": "禁用客户端",
 
     // 客户端详情
     "agent.details": "客户端详情",

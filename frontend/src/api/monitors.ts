@@ -74,6 +74,15 @@ export const getAllMonitorHistory =
     return response.data;
   };
 
+// 切换监控启用/禁用状态
+export const toggleMonitorActive = async (
+  id: number,
+  active: number
+): Promise<MonitorResponse> => {
+  const response = await api.put<MonitorResponse>(`/api/monitors/${id}`, { active });
+  return response.data;
+};
+
 // 手动检查监控
 export const checkMonitor = async (
   id: number
