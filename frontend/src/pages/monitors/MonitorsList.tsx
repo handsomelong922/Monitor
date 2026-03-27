@@ -16,6 +16,7 @@ import {
   Card,
   Tabs,
   Dialog,
+  Switch,
   TableBody,
   TableCell,
   TableRow,
@@ -45,6 +46,7 @@ import {
   deleteMonitor,
   getAllDailyStats,
   getAllMonitorHistory,
+  toggleMonitorActive,
 } from "../../api/monitors";
 import { MonitorWithDailyStatsAndStatusHistory } from "../../types/monitors";
 import MonitorCard from "../../components/MonitorCard";
@@ -118,6 +120,17 @@ const MonitorsList = () => {
   // 处理刷新
   const handleRefresh = () => {
     fetchData();
+  };
+
+  // 切换监控启用状态
+  const handleToggleActive = async (id: number, currentActive: number) => {
+    const newActive = currentActive === 1 ? 0 : 1;
+    const response = await toggleMonitorActive(id, newActive);
+    if (response.success) {
+      setMonitors((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, active: newActive } : m))
+      );
+    }
   };
 
   // 打开删除确认对话框
@@ -290,7 +303,18 @@ const MonitorsList = () => {
                     </Text>
                   </TableCell>
                   <TableCell>
-                    <Flex gap="2">
+                    <Flex gap="2" align="center">
+                      <Switch
+                        checked={monitor.active !== 0}
+                        onCheckedChange={() =>
+                          handleToggleActive(monitor.id, monitor.active ?? 1)
+                        }
+                        title={
+                          monitor.active !== 0
+                            ? t("monitors.disable")
+                            : t("monitors.enable")
+                        }
+                      />
                       <IconButton
                         variant="soft"
                         onClick={() => navigate(`/monitors/${monitor.id}`)}
@@ -325,7 +349,18 @@ const MonitorsList = () => {
             {monitors.map((monitor) => (
               <Box key={`${monitor.id}-${Math.random()}`} className="relative">
                 <MonitorCard monitor={monitor} />
-                <Flex gap="2" className="absolute top-4 right-4">
+                <Flex gap="2" align="center" className="absolute top-4 right-4">
+                  <Switch
+                    checked={monitor.active !== 0}
+                    onCheckedChange={() =>
+                      handleToggleActive(monitor.id, monitor.active ?? 1)
+                    }
+                    title={
+                      monitor.active !== 0
+                        ? t("monitors.disable")
+                        : t("monitors.enable")
+                    }
+                  />
                   <IconButton
                     variant="ghost"
                     size="1"

@@ -241,5 +241,9 @@ CREATE INDEX IF NOT EXISTS \`monitor_status_history_24h_monitor_timestamp_idx\` 
 ALTER TABLE \`monitors\` ADD \`active_windows\` text;
 --> statement-breakpoint
 ALTER TABLE \`monitors\` ADD \`active_days\` text;`
+  },
+  {
+    name: "0006_add_agent_enabled.sql",
+    sql: `ALTER TABLE \`agents\` ADD \`enabled\` integer NOT NULL DEFAULT 1;`
   }
 ];

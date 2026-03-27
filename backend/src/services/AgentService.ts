@@ -68,6 +68,7 @@ export async function updateAgentService(
     os?: string;
     version?: string;
     status?: string;
+    enabled?: number;
   }
 ) {
   try {
@@ -107,6 +108,10 @@ export async function updateAgentService(
 
     if (updateData.status !== undefined) {
       agent.status = updateData.status ?? null;
+    }
+
+    if (updateData.enabled !== undefined) {
+      agent.enabled = updateData.enabled;
     }
 
     // 执行更新
@@ -305,6 +310,12 @@ export async function updateAgentStatusService(status: any) {
     }
     // 通过token查找客户端
     const agent = await AgentRepository.getAgentByToken(norlmalInfo.token);
+
+    // 如果客户端已被禁用，忽略状态更新
+    if (agent.enabled === 0) {
+      console.log(`客户端 ${agent.id} 已禁用，跳过状态更新`);
+      return { agentId: agent.id };
+    }
 
     if (
       agent.status != "active" ||

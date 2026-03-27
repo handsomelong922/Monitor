@@ -95,6 +95,7 @@ export interface UpdateMonitorRequest {
   expected_status?: number;
   interval?: number;
   timeout?: number;
+  active?: number; // 0 = disabled, 1 = enabled
   // 新增：监控时间窗口配置
   active_timezone?: string;
   active_windows?: TimeWindow[];

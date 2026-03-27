@@ -14,6 +14,7 @@ export interface Agent {
     | "unknown"
     | "online"
     | "offline";
+  enabled?: number; // 0 = disabled, 1 = enabled
   version?: string;
   os?: string;
   created_at: string;
@@ -33,6 +34,7 @@ export interface AgentWithLatestMetrics {
     | "unknown"
     | "online"
     | "offline";
+  enabled?: number; // 0 = disabled, 1 = enabled
   version?: string;
   os?: string;
   created_at: string;

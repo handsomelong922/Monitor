@@ -139,6 +139,8 @@ const enUS = {
     "monitors.viewDetails": "View Details",
     "monitors.edit": "Edit Monitor",
     "monitors.delete": "Delete Monitor",
+    "monitors.enable": "Enable Monitor",
+    "monitors.disable": "Disable Monitor",
 
     // Monitor details
     "monitor.details": "Monitor Details",
@@ -240,6 +242,8 @@ const enUS = {
     "agents.table.os": "Operating System",
     "agents.table.version": "Version",
     "agents.table.actions": "Actions",
+    "agents.enable": "Enable Agent",
+    "agents.disable": "Disable Agent",
 
     // Agent Details
     "agent.details": "Agent Details",
